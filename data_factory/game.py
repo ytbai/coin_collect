@@ -161,9 +161,8 @@ class Board():
     return self.state
 
 class Game():
-  def __init__(self, Nx = 6, Ny = 6):
-    self.lambda_coins = 10
-    self.T = 100
+  def __init__(self, Nx, Ny, lambda_coins = 3):
+    self.lambda_coins = lambda_coins
 
     self.Nx = Nx
     self.Ny = Ny
@@ -185,7 +184,7 @@ class Game():
     return self
 
   def terminal(self):
-    return self.t == self.T or self.get_board().terminal()
+    return self.get_board().terminal()
 
   def advance(self, action):
     if self.terminal():
