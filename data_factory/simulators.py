@@ -55,4 +55,4 @@ class QSimulator():
     return torch.min(torch.sum(S[:,0,:,:], dim = (1,2)), torch.tensor(1).type(torch.cuda.FloatTensor))
 
   def get_dataloader(self, batch_size = 32):
-    return torch.utils.data.DataLoader(self.dataset, batch_size = batch_size, shuffle = True)
+    return torch.utils.data.DataLoader(self.dataset, batch_size = batch_size, shuffle = True, drop_last = True)
