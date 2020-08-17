@@ -147,7 +147,7 @@ class Board():
     return self.board.view(1, 4, self.Nx, self.Ny)
 
 class Game():
-  def __init__(self, Nx = 6, Ny = 6, lambda_coins = 3):
+  def __init__(self, Nx = 6, Ny = 6, lambda_coins = 10):
     self.Nx = Nx
     self.Ny = Ny
     self.lambda_coins = lambda_coins
@@ -178,7 +178,7 @@ class Game():
     self.add_reward(new_reward)
     self.add_action(action)
 
-    return self
+    return new_board, new_reward
 
   def add_board(self, board):
     self.board_history.append(board)
