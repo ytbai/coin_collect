@@ -74,7 +74,7 @@ class Agent():
       return False
 
   def advance(self, action):
-    vx, vy = action
+    vx, vy = Action.unflatten(action)
     x = (self.x + vx) % self.Nx
     y = (self.y + vy) % self.Ny
     return Agent(self.Nx, self.Ny, x, y)
@@ -83,11 +83,22 @@ class Agent():
     print("Agent | pos (%d, %d)" % (self.x, self.y))
 
 
+class Action():
+  @staticmethod
+  def unflatten(action):
+    vx = action % 3
+    vy = action - 3*vx
+    return vx, vy
+
+  @staticmethod
+  def collect(action):
+    return Action.unflatten(action) == (0,0)
+
 class Board():
   def __init__(self, Nx, Ny):
     self.Nx = Nx
     self.Ny = Ny
-    self.board = torch.zeros(4, self.Nx, self.Ny, requires_grad = False).type(torch.cuda.FloatTensor)
+    self.state = torch.zeros(4, self.Nx, self.Ny, requires_grad = False).type(torch.cuda.FloatTensor)
     self.coin_list = []
     self.agent = None
     
@@ -96,9 +107,9 @@ class Board():
       coin = Coin(self.Nx, self.Ny)
 
     self.coin_list.append(coin)
-    self.board[0][coin.x][coin.y] += 1
-    self.board[1][coin.x][coin.y] += coin.vx
-    self.board[2][coin.x][coin.y] += coin.vy
+    self.state[0][coin.x][coin.y] += 1
+    self.state[1][coin.x][coin.y] += coin.vx
+    self.state[2][coin.x][coin.y] += coin.vy
     return self
   
   def add_coins(self, coins = None):
@@ -117,7 +128,7 @@ class Board():
       agent = Agent(self.Nx, self.Ny)
 
     self.agent = agent
-    self.board[3][agent.x][agent.y] += 1
+    self.state[3][agent.x][agent.y] += 1
     return self
   
   def terminal(self):
@@ -129,7 +140,7 @@ class Board():
     num_coins_collected = 0
 
     for coin in self.coin_list:
-      if action == (0,0) and self.agent.can_collect(coin):
+      if Action.collect(action) and self.agent.can_collect(coin):
         num_coins_collected += 1
       else:
         new_board.add_coin(coin.advance())
@@ -141,20 +152,28 @@ class Board():
     for coin in self.coin_list:
       coin.print()
     self.agent.print()
-    print(self.board[0] +0.5*self.board[3])
+    print(self.state[0] +0.5*self.state[3])
 
   def unit_batch(self):
-    return self.board.view(1, 4, self.Nx, self.Ny)
+    return self.state.view(1, 4, self.Nx, self.Ny)
+
+  def get_state(self):
+    return self.state
 
 class Game():
-  def __init__(self, Nx = 6, Ny = 6, lambda_coins = 10):
+  def __init__(self, Nx = 6, Ny = 6):
+    self.lambda_coins = 10
+    self.T = 100
+
     self.Nx = Nx
     self.Ny = Ny
-    self.lambda_coins = lambda_coins
     self.board_history = []
     self.reward_history = [None]
     self.action_history = []
     self.init_board_poisson()
+
+
+    
 
   def init_board_poisson(self):
     board = Board(self.Nx, self.Ny)
@@ -162,23 +181,26 @@ class Game():
     board.add_coins(num_coins)
     board.add_agent()
     self.board_history.append(board)
+    self.t = 0
     return self
 
   def terminal(self):
-    return self.get_board().terminal()
+    return self.t == self.T or self.get_board().terminal()
 
   def advance(self, action):
     if self.terminal():
       return None
     
     new_board, num_coins_collected = self.get_board().advance(action)
-    new_reward = -1 + num_coins_collected
+    new_reward = torch.tensor(-1 + num_coins_collected).type(torch.cuda.FloatTensor)
 
     self.add_board(new_board)
     self.add_reward(new_reward)
     self.add_action(action)
+    self.t += 1
 
-    return new_board, new_reward
+    new_state = new_board.get_state()
+    return new_state, new_reward
 
   def add_board(self, board):
     self.board_history.append(board)
@@ -194,6 +216,9 @@ class Game():
 
   def get_board(self, t = -1):
     return self.board_history[t]
+
+  def get_state(self, t = -1):
+    return self.board_history[t].state
 
   def print_board(self, t = -1):
     self.get_board(t).print()
