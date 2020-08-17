@@ -11,6 +11,7 @@ class QSimulator():
     self.Q = Q
     self.dataset = None
     self.renew_dataset()
+    self.T = 64
 
   def renew_dataset(self):
     if self.dataset is not None:
@@ -27,13 +28,11 @@ class QSimulator():
 
   def simulate_once(self, eps):
     game = Game(self.Nx, self.Ny)
-    t = 0
-    while not game.terminal():
+    while game.t < self.T and not game.terminal():
       S = game.get_state()
       A = self.eval_eps_greedy_action(S, eps)
       Sp, R = game.advance(A)
       self.dataset.append(S, A, R, Sp)
-      t += 1
     return self
   
   def eval_eps_greedy_action(self, S, eps):
