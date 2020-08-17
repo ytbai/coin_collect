@@ -87,7 +87,7 @@ class Board():
   def __init__(self, Nx, Ny):
     self.Nx = Nx
     self.Ny = Ny
-    self.board = np.zeros((4, self.Nx, self.Ny))
+    self.board = torch.zeros(4, self.Nx, self.Ny, requires_grad = False).type(torch.cuda.FloatTensor)
     self.coin_list = []
     self.agent = None
     
@@ -142,6 +142,9 @@ class Board():
       coin.print()
     self.agent.print()
     print(self.board[0] +0.5*self.board[3])
+
+  def unit_batch(self):
+    return self.board.view(1, 4, self.Nx, self.Ny)
 
 class Game():
   def __init__(self, Nx = 6, Ny = 6, lambda_coins = 3):
