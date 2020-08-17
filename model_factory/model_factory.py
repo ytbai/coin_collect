@@ -18,9 +18,13 @@ class ModelFactory():
     self.loss_dict_path = os.path.join(self.model_dir, "loss_dict.p")
     self.loss_dict = defaultdict(list)
 
-  def save_best(self, loss_name):
-    if min(self.loss_dict[loss_name]) == self.loss_dict[loss_name][-1]:
-      self.save_state_dict()
+  def save_best(self, loss_name, mode):
+    if mode == "min":
+      if min(self.loss_dict[loss_name]) == self.loss_dict[loss_name][-1]:
+        self.save_state_dict()
+    elif mode == "max":
+      if max(self.loss_dict[loss_name]) == self.loss_dict[loss_name][-1]:
+        self.save_state_dict()
     self.save_loss_dict()
 
   def save(self):
