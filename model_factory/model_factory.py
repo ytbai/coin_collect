@@ -3,6 +3,7 @@ import numpy as np
 import os
 from collections import defaultdict
 import pickle
+
 class ModelFactory():
   def __init__(self, model, model_dir, name = None):
     self.model = model
@@ -13,8 +14,6 @@ class ModelFactory():
     else:
       self.name = name
 
-    self.model_path = os.path.join(self.model_dir, self.name)
-    
     self.state_dict_path = os.path.join(self.model_dir, "state_dict.tar")
     self.loss_dict_path = os.path.join(self.model_dir, "loss_dict.p")
     self.loss_dict = defaultdict(list)
