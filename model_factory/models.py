@@ -6,7 +6,6 @@ from torch import nn
 
 from model_factory.modules import *
 
-
 class QValue(nn.Module):
   def __init__(self):
     super().__init__()
@@ -49,6 +48,7 @@ class QValue(nn.Module):
 
         nn.Linear(32, 9),
     )
-  
+
+
   def forward(self, x):
-    return self.seq(x).view(-1,3,3)
+    return self.seq(x)
