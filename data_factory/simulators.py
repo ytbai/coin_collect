@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import gc
 from data_factory.game import *
 from data_factory.sars import *
 
