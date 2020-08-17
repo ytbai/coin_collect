@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 class SARSDataset(torch.utils.data.Dataset):
-  def __init__(self, Nx = 8, Ny = 8):
+  def __init__(self, Nx, Ny):
     self.Nx = Nx
     self.Ny = Ny
     self.S_list = []
