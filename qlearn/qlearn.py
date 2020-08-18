@@ -4,18 +4,19 @@ import numpy as np
 from model_factory import *
 from data_factory import *
 from test import *
-
+print("R T rescale, criterion for kappa, reducced")
 class QLearn():
-  def __init__(self, name, Nx, Ny, N_valid = 2048, lr_init = 1e-4, kappa = None):
+  def __init__(self, Nx, Ny, name, Q_model = QValue, N_valid = 2048, lr_init = 1e-4, kappa = None, criterion = nn.MSELoss()):
     self.Nx = Nx
     self.Ny = Ny
-    self.Q = QValue().cuda()
+    self.Q = Q_model().cuda()
     self.name = name
     self.N_valid = N_valid
     self.lr_init = lr_init
     self.kappa = kappa
     self.model_dir = os.path.join("qlearn/models", self.name)
     self.model_factory = ModelFactory(model = self.Q, model_dir = self.model_dir, name = self.name)
+    self.criterion = criterion
 
     self.simulator = QSimulator(self.Nx, self.Ny, self.Q)
     self.valid_simulator = TestSimulator(self.Nx, self.Ny)
@@ -26,10 +27,10 @@ class QLearn():
   def init_optim(self):
     self.optimizer = torch.optim.Adam(params = self.Q.parameters(), lr = self.lr_init)
     self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode="max", factor = 0.1, patience = 10, verbose = True)
-    self.criterion = nn.MSELoss()
+
 
   def R_process(self, R):
-    return R / self.simulator.T
+    return R/self.simulator.T
 
   def get_Q_target(self, R, Sp, term):
     self.Q.eval()
@@ -58,9 +59,8 @@ class QLearn():
         if self.kappa is None:
           loss = self.criterion(Q_pred, Q_target)
         else:
-          loss = (Q_pred-Q_target)**2
-          loss *= torch.pow(self.kappa, self.simulator.T - t)
-          loss = torch.mean(loss)
+          reduce = torch.pow(self.kappa, self.simulator.T - t)
+          loss = self.criterion(Q_pred * reduce, Q_target * reduce)
 
         loss.backward()
         self.optimizer.step()
@@ -70,7 +70,7 @@ class QLearn():
     self.model_factory.append_loss("loss_train", loss_mean)
     return loss_mean
   
-  def train(self, epochs, eps, N = 128, iterations = 8, batch_size = 64, verbose = False):
+  def train(self, epochs, eps, N = 64, iterations = 4, batch_size = 64, verbose = False):
     for e in range(epochs):
       self.simulator.renew_dataset()
       self.simulator.simulate(N = N, eps = eps)
