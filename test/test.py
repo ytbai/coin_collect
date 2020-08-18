@@ -21,21 +21,19 @@ class TestSimulator():
     print("%d test games initialized" % N_test)
     return self
 
-  def test_once(self, model_wrapper, index):
-    total_reward = 0
-    game = copy.deepcopy(self.games[index])
+  def test_once(self, model_wrapper, game):
+    game = copy.deepcopy(game)
     while game.t < self.T and not game.terminal():
       state = game.get_state()
       action = model_wrapper(state)
       state_p, reward = game.advance(action)
-      total_reward += reward
-    return total_reward
+    return game
   
   def test(self, model_wrapper):
     total_return = 0
     for index in range(self.N_test):
-
-      total_return += self.test_once(model_wrapper, index)
+      game = self.games[index]
+      total_return += self.test_once(model_wrapper, game).get_total_reward()
     
     mean_return = total_return / self.N_test
     return mean_return
