@@ -25,17 +25,21 @@ class QLearn():
     self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode="max", factor = 0.1, patience = 10, verbose = True)
     self.criterion = nn.MSELoss()
 
+  def R_process(self, R):
+    return R / 10.
 
-  def get_Q_target(self, R, Sp):
+  def get_Q_target(self, R, Sp, term):
     self.Q.eval()
     Q_max = torch.max(self.Q(Sp).detach(), dim = 1)[0]
-    Q_max *= 1-self.simulator.terminal(Sp)
-    Q_target = R + Q_max
+    Q_max *= 1-term
+    R_proc = self.R_process(R)
+    Q_target = R_proc + Q_max
     return Q_target
 
   def get_Q_pred(self, S, A):
     self.Q.train()
-    Q_pred = torch.sum(self.Q(S) * nn.functional.one_hot(A, num_classes = 9).type(torch.cuda.FloatTensor), dim = 1)
+    A_one_hot = nn.functional.one_hot(A, num_classes = 9).type(torch.cuda.FloatTensor)
+    Q_pred = torch.sum(self.Q(S) * A_one_hot, dim = 1)
     return Q_pred
 
   def train_once(self, iterations, batch_size):
@@ -43,9 +47,9 @@ class QLearn():
     loss_total = 0
 
     for it in range(iterations):
-      for S, A, R, Sp in dataloader:
+      for S, A, R, Sp, term, t in dataloader:
         self.optimizer.zero_grad()
-        Q_target = self.get_Q_target(R, Sp)
+        Q_target = self.get_Q_target(R, Sp, term)
         Q_pred = self.get_Q_pred(S, A)
         
         loss = self.criterion(Q_pred, Q_target)
