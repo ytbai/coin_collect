@@ -15,7 +15,7 @@ class QLearn():
     self.model_factory = ModelFactory(model = self.Q, model_dir = self.model_dir, name = self.name)
 
     self.simulator = QSimulator(self.Nx, self.Ny, self.Q)
-    self.valid_simulator = TestSimulator(self.Nx, self.Ny, self)
+    self.valid_simulator = TestSimulator(self.Nx, self.Ny)
     self.valid_simulator.init_games(N_test =N_valid)
     self.init_optim()
 
@@ -65,7 +65,7 @@ class QLearn():
       self.model_factory.print_last_loss(e)
   
   def valid(self, save_best = True):
-    loss_valid = self.valid_simulator.test()
+    loss_valid = self.valid_simulator.test(self)
     self.model_factory.append_loss("loss_valid", loss_valid)
     self.scheduler.step(loss_valid)
 
