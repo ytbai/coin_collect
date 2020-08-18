@@ -11,42 +11,17 @@ class QValue(nn.Module):
     super().__init__()
     self.seq = nn.Sequential(
         nn.Conv2d(4, 8, kernel_size = 3, padding = 1),
-        nn.BatchNorm2d(8),
         nn.ReLU(),
 
-        nn.Conv2d(8, 8, kernel_size = 3, padding = 1),
-        nn.BatchNorm2d(8),
-        nn.ReLU(),
-
-        nn.Conv2d(8, 16, kernel_size = 3, stride = 2, padding = 1),
-        nn.BatchNorm2d(16),
-        nn.ReLU(),
-
-        nn.Conv2d(16, 16, kernel_size = 3, padding = 1),
-        nn.BatchNorm2d(16),
-        nn.ReLU(),
-
-        nn.Conv2d(16, 16, kernel_size = 3, padding = 1),
-        nn.BatchNorm2d(16),
-        nn.ReLU(),
-
-        nn.Conv2d(16, 32, kernel_size = 3, stride = 2, padding = 1),
-        nn.BatchNorm2d(32),
-        nn.ReLU(),
-
-        nn.Conv2d(32, 32, kernel_size = 3, padding = 1),
-        nn.BatchNorm2d(32),
-        nn.ReLU(),
-
-        nn.Conv2d(32, 32, kernel_size = 3, padding = 1),
-        nn.BatchNorm2d(32),
-        nn.ReLU(),
+        ResidualBlock(8),
+        ResidualDownsample(8),
+        ResidualBlock(16),
 
         GlobalAvgPool2d(),
-        nn.BatchNorm1d(32),
+        nn.BatchNorm1d(16),
         nn.ReLU(),
 
-        nn.Linear(32, 9),
+        nn.Linear(16, 9),
     )
 
 
