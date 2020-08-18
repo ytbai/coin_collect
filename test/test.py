@@ -38,3 +38,12 @@ class TestSimulator():
     
     mean_return = total_return / self.N_test
     return mean_return
+
+
+class RandomPlayer():
+  def __init__(self):
+    return
+
+  def __call__(self, x):
+    return np.random.randint(9)
+
