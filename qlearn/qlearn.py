@@ -6,12 +6,14 @@ from data_factory import *
 from test import *
 
 class QLearn():
-  def __init__(self, name, Nx, Ny, N_valid = 2048):
+  def __init__(self, name, Nx, Ny, N_valid = 2048, lr_init = 1e-4, kappa = None):
     self.Nx = Nx
     self.Ny = Ny
     self.Q = QValue().cuda()
     self.name = name
     self.N_valid = N_valid
+    self.lr_init = lr_init
+    self.kappa = kappa
     self.model_dir = os.path.join("qlearn/models", self.name)
     self.model_factory = ModelFactory(model = self.Q, model_dir = self.model_dir, name = self.name)
 
@@ -19,14 +21,15 @@ class QLearn():
     self.valid_simulator = TestSimulator(self.Nx, self.Ny)
     
     self.init_optim()
+    
 
   def init_optim(self):
-    self.optimizer = torch.optim.Adam(params = self.Q.parameters(), lr = 1e-4)
+    self.optimizer = torch.optim.Adam(params = self.Q.parameters(), lr = self.lr_init)
     self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode="max", factor = 0.1, patience = 10, verbose = True)
     self.criterion = nn.MSELoss()
 
   def R_process(self, R):
-    return R / 10.
+    return R / self.simulator.T
 
   def get_Q_target(self, R, Sp, term):
     self.Q.eval()
@@ -52,7 +55,12 @@ class QLearn():
         Q_target = self.get_Q_target(R, Sp, term)
         Q_pred = self.get_Q_pred(S, A)
         
-        loss = self.criterion(Q_pred, Q_target)
+        if self.kappa is None:
+          loss = self.criterion(Q_pred, Q_target)
+        else:
+          loss = (Q_pred-Q_target)**2
+          loss *= torch.pow(self.kappa, self.simulator.T - t)
+          loss = torch.mean(loss)
 
         loss.backward()
         self.optimizer.step()
@@ -83,6 +91,4 @@ class QLearn():
     self.Q.eval()
     S = state.view(1, 4, self.Nx, self.Ny)
     return torch.argmax(self.Q(S).detach()).item()
-
-
 
