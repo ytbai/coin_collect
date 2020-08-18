@@ -11,7 +11,7 @@ class QSimulator():
     self.Q = Q
     self.dataset = None
     self.renew_dataset()
-    self.T = 16
+    self.T = 64
 
   def renew_dataset(self):
     if self.dataset is not None:
