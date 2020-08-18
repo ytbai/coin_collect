@@ -3,6 +3,7 @@ import numpy as np
 
 from model_factory import *
 from data_factory import *
+from test import *
 
 class QLearn():
   def __init__(self, name, Nx, Ny, N_valid = 2048):
