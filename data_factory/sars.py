@@ -5,25 +5,31 @@ class SARSDataset(torch.utils.data.Dataset):
   def __init__(self, Nx, Ny):
     self.Nx = Nx
     self.Ny = Ny
-    self.S_list = []
-    self.A_list = []
-    self.R_list = []
-    self.Sp_list = []
+    self.state_list = []
+    self.action_list = []
+    self.reward_list = []
+    self.state_p_list = []
+    self.term_list = []
+    self.t_list = []
   
-  def append(self, S, A, R, Sp):
-    self.S_list.append(S)
-    self.A_list.append(A)
-    self.R_list.append(R)
-    self.Sp_list.append(Sp)
+  def append(self, state, action, reward, state_p, term, t):
+    self.state_list.append(state)
+    self.action_list.append(action)
+    self.reward_list.append(reward)
+    self.state_p_list.append(state_p)
+    self.term_list.append(term)
+    self.t_list.append(t)
 
     return self
 
   def __getitem__(self, index):
-    S = self.S_list[index]
-    A = self.A_list[index]
-    R = self.R_list[index]
-    Sp = self.Sp_list[index]
-    return S, A, R, Sp
+    state = self.state_list[index]
+    action = self.action_list[index]
+    reward = self.reward_list[index]
+    state_p = self.state_p_list[index]
+    term = self.term_list[index]
+    t = self.t_list[index]
+    return state, action, reward, state_p, term, t
   
   def __len__(self):
-    return len(self.S_list)
+    return len(self.state_list)
