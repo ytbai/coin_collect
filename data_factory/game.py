@@ -177,7 +177,7 @@ class Game():
     self.Nx = Nx
     self.Ny = Ny
     self.board_history = []
-    self.reward_history = [None]
+    self.reward_history = []
     self.action_history = []
     self.init_board_poisson()
 
@@ -228,6 +228,9 @@ class Game():
 
   def get_state(self, t = -1):
     return self.board_history[t].state
+
+  def get_total_reward(self):
+    return sum(self.reward_history)
 
   def print_board(self, t = -1):
     self.get_board(t).print()
