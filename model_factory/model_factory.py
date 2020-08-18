@@ -71,7 +71,9 @@ class ModelFactory():
   def get_last_epoch(self):
     return epochs
 
-  def print_last_loss(self, epoch = None):
+  def print_last_loss(self, epoch = None, verbose = True):
+    if verbose == False:
+      return
     if epoch is not None:
       print("epoch: %d" % epoch, end = " ")
 
