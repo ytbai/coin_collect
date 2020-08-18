@@ -86,9 +86,19 @@ class Agent():
 class Action():
   @staticmethod
   def unflatten(action):
-    vx = action % 3
+    vx = action // 3
     vy = action - 3*vx
+
+    vx -= 1
+    vy -= 1
     return vx, vy
+
+  @staticmethod
+  def flatten(vx, vy):
+    vx += 1
+    vy += 1
+    action = 3*vx + vy
+    return action
 
   @staticmethod
   def collect(action):
