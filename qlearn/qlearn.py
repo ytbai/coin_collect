@@ -11,12 +11,13 @@ class QLearn():
     self.Ny = Ny
     self.Q = QValue().cuda()
     self.name = name
+    self.N_valid = N_valid
     self.model_dir = os.path.join("qlearn/models", self.name)
     self.model_factory = ModelFactory(model = self.Q, model_dir = self.model_dir, name = self.name)
 
     self.simulator = QSimulator(self.Nx, self.Ny, self.Q)
     self.valid_simulator = TestSimulator(self.Nx, self.Ny)
-    self.valid_simulator.init_games(N_test =N_valid)
+    
     self.init_optim()
 
   def init_optim(self):
@@ -46,7 +47,7 @@ class QLearn():
         self.optimizer.zero_grad()
         Q_target = self.get_Q_target(R, Sp)
         Q_pred = self.get_Q_pred(S, A)
-        #print(Q_target)
+        
         loss = self.criterion(Q_pred, Q_target)
 
         loss.backward()
@@ -57,14 +58,16 @@ class QLearn():
     self.model_factory.append_loss("loss_train", loss_mean)
     return loss_mean
   
-  def train(self, epochs, eps, N = 64, iterations = 4, batch_size = 64):
+  def train(self, epochs, eps, N = 64, iterations = 4, batch_size = 64, verbose = False):
     for e in range(epochs):
       self.simulator.renew_dataset()
       self.simulator.simulate(N = N, eps = eps)
       self.train_once(iterations, batch_size)
-      self.model_factory.print_last_loss(e)
+      self.model_factory.print_last_loss(e, verbose)
   
-  def valid(self, save_best = True):
+  def valid(self, renew_dataset = True, save_best = True):
+    if renew_dataset:
+      self.valid_simulator.init_games(self.N_valid)
     loss_valid = self.valid_simulator.test(self)
     self.model_factory.append_loss("loss_valid", loss_valid)
     self.scheduler.step(loss_valid)
