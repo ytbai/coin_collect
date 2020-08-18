@@ -9,6 +9,7 @@ from model_factory.modules import *
 class QValue(nn.Module):
   def __init__(self):
     super().__init__()
+    
     self.seq = nn.Sequential(
         nn.Conv2d(4, 8, kernel_size = 3, padding = 1),
         nn.ReLU(),
@@ -22,6 +23,7 @@ class QValue(nn.Module):
         nn.ReLU(),
 
         nn.Linear(16, 9),
+        Rescale(1/np.sqrt(16)),
     )
 
 
