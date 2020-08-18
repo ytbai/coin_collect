@@ -4,6 +4,14 @@ import pandas as pd
 import os
 from torch import nn
 
+class Rescale(nn.Module):
+  def __init__(self, factor):
+    super().__init__()
+    self.factor = factor
+
+  def forward(self, x):
+    return self.factor * x
+
 
 class GlobalAvgPool2d(nn.Module):
   def __init__(self):
