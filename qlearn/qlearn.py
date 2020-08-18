@@ -21,7 +21,7 @@ class QLearn():
     self.init_optim()
 
   def init_optim(self):
-    self.optimizer = torch.optim.Adam(params = self.Q.parameters(), lr = 0.001)
+    self.optimizer = torch.optim.Adam(params = self.Q.parameters(), lr = 1e-4)
     self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode="max", factor = 0.1, patience = 10, verbose = True)
     self.criterion = nn.MSELoss()
 
@@ -58,7 +58,7 @@ class QLearn():
     self.model_factory.append_loss("loss_train", loss_mean)
     return loss_mean
   
-  def train(self, epochs, eps, N = 64, iterations = 4, batch_size = 64, verbose = False):
+  def train(self, epochs, eps, N = 128, iterations = 8, batch_size = 64, verbose = False):
     for e in range(epochs):
       self.simulator.renew_dataset()
       self.simulator.simulate(N = N, eps = eps)
@@ -79,5 +79,6 @@ class QLearn():
     self.Q.eval()
     S = state.view(1, 4, self.Nx, self.Ny)
     return torch.argmax(self.Q(S).detach()).item()
+
 
 
