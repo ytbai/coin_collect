@@ -1,8 +1,8 @@
 import torch
 import numpy as np
 import gc
-from data_factory.game import *
-from data_factory.sars import *
+from data_factory import *
+from model_factory import *
 
 class Simulator():
   def __init__(self, Nx, Ny):
