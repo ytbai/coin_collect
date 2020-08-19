@@ -4,15 +4,14 @@ import gc
 from data_factory.game import *
 from data_factory.sars import *
 
-class QSimulator():
-  def __init__(self, Nx, Ny, Q):
+class Simulator():
+  def __init__(self, Nx, Ny):
     self.Nx = Nx
     self.Ny = Ny
-    self.Q = Q
     self.dataset = None
     self.renew_dataset()
-    self.T = 64
-
+    self.T = 64  
+  
   def renew_dataset(self):
     if self.dataset is not None:
       del self.dataset
@@ -25,6 +24,15 @@ class QSimulator():
     for _ in range(N):
       self.simulate_once(eps)
     return self
+  
+  def get_dataloader(self, batch_size = 32):
+    return torch.utils.data.DataLoader(self.dataset, batch_size = batch_size, shuffle = True, drop_last = True)
+
+
+class QSimulator(Simulator):
+  def __init__(self, Nx, Ny, Q):
+    super().__init__(Nx, Ny)
+    self.Q = Q
 
   def simulate_once(self, eps):
     game = Game(self.Nx, self.Ny)
@@ -49,10 +57,7 @@ class QSimulator():
 
   def eval_max_action(self, state):
     self.Q.eval()
-    S = state.view(1, 4, self.Nx, self.Ny)
+    S = state.view(1, Game.num_channels, self.Nx, self.Ny)
     Q_values = self.Q(S)
     max_action = torch.argmax(Q_values).item()
     return max_action
-  
-  def get_dataloader(self, batch_size = 32):
-    return torch.utils.data.DataLoader(self.dataset, batch_size = batch_size, shuffle = True, drop_last = True)
