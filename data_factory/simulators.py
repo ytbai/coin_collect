@@ -61,7 +61,7 @@ class QSimulator(Simulator):
 
   def eval_max_action(self, state):
     self.Q.eval()
-    S = state.view(1, Game.num_channels, self.Nx, self.Ny)
+    S = Game.state_to_batch(state)
     Q_values = self.Q(S)
     max_action = torch.argmax(Q_values).item()
     return max_action

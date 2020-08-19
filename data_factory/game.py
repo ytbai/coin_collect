@@ -164,8 +164,6 @@ class Board():
     self.agent.print()
     print(self.state[0] +0.5*self.state[3])
 
-  def unit_batch(self):
-    return self.state.view(1, Game.num_channels, self.Nx, self.Ny)
 
   def get_state(self):
     return self.state
@@ -173,6 +171,14 @@ class Board():
 class Game():
   num_channels = 4
   num_actions = 9
+
+  @staticmethod
+  def state_to_batch(state):
+    return state.view(1, *tuple(state.shape))
+
+  @staticmethod
+  def board_to_batch(board):
+    return Game.state_to_batch(board.get_state())
 
   def __init__(self, Nx, Ny, lambda_coins = 3):
     self.lambda_coins = lambda_coins
