@@ -6,19 +6,19 @@ from data_factory import *
 from test import *
 
 class QLearn():
-  def __init__(self, Nx, Ny, name, Q_model = QValue, N_valid = 2048, lr_init = 1e-4, kappa = None, criterion = nn.MSELoss()):
+  def __init__(self, Nx, Ny, name, Q_model, eps, N_valid = 2048, lr_init = 1e-4, kappa = None):
     self.Nx = Nx
     self.Ny = Ny
     self.Q = Q_model().cuda()
     self.name = name
+    self.eps = eps
     self.N_valid = N_valid
     self.lr_init = lr_init
     self.kappa = kappa
     self.model_dir = os.path.join("qlearn/models", self.name)
     self.model_factory = ModelFactory(model = self.Q, model_dir = self.model_dir, name = self.name)
-    self.criterion = criterion
 
-    self.simulator = QSimulator(self.Nx, self.Ny, self.Q)
+    self.simulator = QSimulator(self.Nx, self.Ny, self.Q, self.eps)
     self.valid_simulator = TestSimulator(self.Nx, self.Ny)
     
     self.init_optim()
@@ -42,8 +42,7 @@ class QLearn():
 
   def get_Q_pred(self, S, A):
     self.Q.train()
-    A_one_hot = nn.functional.one_hot(A, num_classes = Game.num_actions).type(torch.cuda.FloatTensor)
-    Q_pred = torch.sum(self.Q(S) * A_one_hot, dim = 1)
+    Q_pred = Game.project(self.Q(S), A)
     return Q_pred
 
   def train_once(self, iterations, batch_size):
@@ -57,10 +56,10 @@ class QLearn():
         Q_pred = self.get_Q_pred(S, A)
         
         if self.kappa is None:
-          loss = self.criterion(Q_pred, Q_target)
+          loss = nn.MSELoss()(Q_pred, Q_target)
         else:
           reduce = torch.pow(self.kappa, self.simulator.T - t)
-          loss = self.criterion(Q_pred * reduce, Q_target * reduce)
+          loss = nn.MSELoss()(Q_pred * reduce, Q_target * reduce)
 
         loss.backward()
         self.optimizer.step()
@@ -70,10 +69,10 @@ class QLearn():
     self.model_factory.append_loss("loss_train", loss_mean)
     return loss_mean
   
-  def train(self, epochs, eps, N = 64, iterations = 4, batch_size = 64, verbose = False):
+  def train(self, epochs, N = 64, iterations = 4, batch_size = 64, verbose = False):
     for e in range(epochs):
       self.simulator.renew_dataset()
-      self.simulator.simulate(N = N, eps = eps)
+      self.simulator.simulate(N = N)
       self.train_once(iterations, batch_size)
       self.model_factory.print_last_loss(e, verbose)
   
