@@ -180,6 +180,11 @@ class Game():
   def board_to_batch(board):
     return Game.state_to_batch(board.get_state())
 
+  @staticmethod
+  def prob_to_action(prob):
+    prob = torch.flatten(prob).detach().cpu().numpy()
+    return np.random.choice(Game.num_actions, p = prob)
+
   def __init__(self, Nx, Ny, lambda_coins = 3):
     self.lambda_coins = lambda_coins
 
