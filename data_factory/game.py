@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import pandas as pd
 import os
+from torch import nn
 
 class Coin():
   def __init__(self, Nx, Ny, x = None, y = None, vx = None, vy = None):
