@@ -185,6 +185,12 @@ class Game():
     prob = torch.flatten(prob).detach().cpu().numpy()
     return np.random.choice(Game.num_actions, p = prob)
 
+  @staticmethod
+  def project(X, A):
+    A_one_hot = nn.functional.one_hot(A, num_classes = Game.num_actions).type(torch.cuda.FloatTensor)
+    projection = torch.sum(X * A_one_hot, dim = 1)
+    return projection
+
   def __init__(self, Nx, Ny, lambda_coins = 3):
     self.lambda_coins = lambda_coins
 
