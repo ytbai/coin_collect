@@ -4,7 +4,7 @@ import numpy as np
 from model_factory import *
 from data_factory import *
 from test import *
-print("R T rescale, criterion for kappa, reducced")
+
 class QLearn():
   def __init__(self, Nx, Ny, name, Q_model = QValue, N_valid = 2048, lr_init = 1e-4, kappa = None, criterion = nn.MSELoss()):
     self.Nx = Nx
@@ -42,7 +42,7 @@ class QLearn():
 
   def get_Q_pred(self, S, A):
     self.Q.train()
-    A_one_hot = nn.functional.one_hot(A, num_classes = 9).type(torch.cuda.FloatTensor)
+    A_one_hot = nn.functional.one_hot(A, num_classes = Game.num_actions).type(torch.cuda.FloatTensor)
     Q_pred = torch.sum(self.Q(S) * A_one_hot, dim = 1)
     return Q_pred
 
@@ -89,6 +89,6 @@ class QLearn():
   
   def __call__(self, state):
     self.Q.eval()
-    S = state.view(1, 4, self.Nx, self.Ny)
+    S = state.view(1, Game.num_channels, self.Nx, self.Ny)
     return torch.argmax(self.Q(S).detach()).item()
 
