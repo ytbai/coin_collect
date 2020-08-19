@@ -43,7 +43,7 @@ class RL():
     self.scheduler.step(score_valid)
 
     if save_best:
-      self.model_factory.save_best("score_valid", mode = self.valid_mode)
+      self.model_factory.save_best("score_valid", mode = self.valid_best)
 
   def __call__(self, state):
     return self.simulator(state)
