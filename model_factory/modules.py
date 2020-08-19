@@ -4,6 +4,14 @@ import pandas as pd
 import os
 from torch import nn
 
+class View(nn.Module):
+  def __init__(self, shape):
+    super().__init__()
+    self.shape = shape
+
+  def forward(self, x):
+    return x.view(self.shape)
+
 class Rescale(nn.Module):
   def __init__(self, factor):
     super().__init__()
