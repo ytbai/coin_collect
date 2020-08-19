@@ -68,3 +68,22 @@ class QSimulator(Simulator):
 
   def __call__(self, state):
     return self.eval_max_action(state)
+
+
+class ACSimulator(Simulator):
+  def __init__(self, Nx, Ny, actor_critic):
+    super().__init__(Nx, Ny)
+    self.actor_critic = actor_critic
+  
+  def eval_action(self, state):
+    self.actor_critic.eval()
+    S = Game.state_to_batch(state)
+    actor_values = self.actor_critic.actor(S)
+    action = Game.prob_to_action(actor_values)
+    return action
+
+  def __call__(self, state):
+    return self.eval_action(state)
+
+simulator = ACSimulator(Nx=4, Ny=4, actor_critic = ACBaseline().cuda())
+simulator.simulate_once()
