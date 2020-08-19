@@ -29,7 +29,7 @@ class Simulator():
     game = Game(self.Nx, self.Ny)
     while game.t < self.T and not game.terminal():
       state = game.get_state()
-      action = self.sample_action(state)
+      action = self.eval_action(state)
       state_prime, reward = game.advance(action)
       term = torch.tensor(int(game.terminal())).type(torch.cuda.FloatTensor)
       t = torch.tensor(game.t).type(torch.cuda.FloatTensor)
@@ -46,7 +46,7 @@ class QSimulator(Simulator):
     self.Q = Q
     self.eps = eps
 
-  def sample_action(self, state):
+  def eval_action(self, state):
     return self.eval_eps_greedy_action(state)
   
   def eval_eps_greedy_action(self, state):
