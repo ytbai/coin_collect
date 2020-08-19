@@ -5,13 +5,14 @@ import os
 from torch import nn
 
 from model_factory.modules import *
+from data_factory import *
 
 class QValue(nn.Module):
   def __init__(self):
     super().__init__()
     
     self.seq = nn.Sequential(
-        nn.Conv2d(4, 8, kernel_size = 3, padding = 1),
+        nn.Conv2d(Game.num_channels, 8, kernel_size = 3, padding = 1),
         nn.ReLU(),
 
         ResidualBlock(8),
@@ -22,7 +23,7 @@ class QValue(nn.Module):
         nn.BatchNorm1d(16),
         nn.ReLU(),
 
-        nn.Linear(16, 9),
+        nn.Linear(16, Game.num_actions),
         Rescale(1/np.sqrt(16)),
     )
 
@@ -36,7 +37,7 @@ class QValueWide(nn.Module):
     super().__init__()
     
     self.seq = nn.Sequential(
-        nn.Conv2d(4, 16, kernel_size = 3, padding = 1),
+        nn.Conv2d(Game.num_channels, 16, kernel_size = 3, padding = 1),
         nn.ReLU(),
 
         ResidualBlock(16),
@@ -47,7 +48,7 @@ class QValueWide(nn.Module):
         nn.BatchNorm1d(32),
         nn.ReLU(),
 
-        nn.Linear(32, 9),
+        nn.Linear(32, Game.num_actions),
         Rescale(1/np.sqrt(32)),
     )
 
@@ -63,7 +64,7 @@ class QValueWideDeep(nn.Module):
     super().__init__()
     
     self.seq = nn.Sequential(
-        nn.Conv2d(4, 16, kernel_size = 3, padding = 1),
+        nn.Conv2d(Game.num_channels, 16, kernel_size = 3, padding = 1),
         nn.ReLU(),
 
         ResidualBlock(16),
@@ -76,7 +77,7 @@ class QValueWideDeep(nn.Module):
         nn.BatchNorm1d(32),
         nn.ReLU(),
 
-        nn.Linear(32, 9),
+        nn.Linear(32, Game.num_actions),
         Rescale(1/np.sqrt(32)),
     )
 
@@ -90,7 +91,7 @@ class QValueDeep(nn.Module):
     super().__init__()
     
     self.seq = nn.Sequential(
-        nn.Conv2d(4, 8, kernel_size = 3, padding = 1),
+        nn.Conv2d(Game.num_channels, 8, kernel_size = 3, padding = 1),
         nn.ReLU(),
 
         ResidualBlock(8),
@@ -103,7 +104,7 @@ class QValueDeep(nn.Module):
         nn.BatchNorm1d(16),
         nn.ReLU(),
 
-        nn.Linear(16, 9),
+        nn.Linear(16, Game.num_actions),
         Rescale(1/np.sqrt(16)),
     )
 
