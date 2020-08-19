@@ -44,5 +44,5 @@ class RandomPlayer():
     return
 
   def __call__(self, x):
-    return np.random.randint(9)
+    return np.random.randint(Game.num_actions)
 
