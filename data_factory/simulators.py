@@ -65,3 +65,6 @@ class QSimulator(Simulator):
     Q_values = self.Q(S)
     max_action = torch.argmax(Q_values).item()
     return max_action
+
+  def __call__(self, state):
+    return self.eval_max_action(state)
