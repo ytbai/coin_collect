@@ -10,6 +10,7 @@ class AC(RL):
     self.actor_critic = self.model
     self.simulator = ACSimulator(self.Nx, self.Ny, self.actor_critic)
     self.lambda_critic = 0.1
+    self.log_eps = 1e-20
 
   def get_delta_and_critic_target(self, S, R, Sp, term):
     self.actor_critic.eval()
@@ -20,7 +21,7 @@ class AC(RL):
 
   def get_loss_actor(self, actor_output, A, delta):
     loss_actor = Game.project(actor_output, A)
-    loss_actor = torch.log(loss_actor)
+    loss_actor = torch.log(torch.abs(loss_actor) + self.log_eps)
     loss_actor *= delta
     loss_actor = -torch.mean(loss_actor) # minus sign
     return loss_actor
