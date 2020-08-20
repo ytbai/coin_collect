@@ -1,13 +1,14 @@
 import torch
 import numpy as np
+from rl.rl import *
+from data_factory import *
 
-from rl import *
 class PPO(RL):
   def __init__(self, Nx, Ny, name, actor_critic_class, eps, N_valid, lr_init = 1e-4):
     super().__init__(Nx, Ny, name, actor_critic_class, models_dir = "rl/ppo/models", N_valid = N_valid, lr_init = lr_init)
 
     self.actor_critic = self.model
-    self.simulator = ACSimulator(self.Nx, self.Ny, self.actor_critic)
+    self.simulator = ActorSimulator(self.Nx, self.Ny, self.actor_critic)
     self.lambda_critic = 0.1
     self.eps = eps
 
