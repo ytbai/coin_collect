@@ -34,7 +34,10 @@ class PPO(RL):
     return loss_critic
 
 
-  def train_once(self, iterations, batch_size):
+  def train_once(self, N, iterations, batch_size):
+    self.simulator.renew_dataset()
+    self.simulator.simulate(N = N)
+
     actor_critic_old = copy.deepcopy(self.actor_critic)
     actor_critic_old.eval() # never put the old model on .train() mode
 
