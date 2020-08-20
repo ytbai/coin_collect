@@ -31,7 +31,10 @@ class AC(RL):
     return loss_critic
 
 
-  def train_once(self, iterations, batch_size):
+  def train_once(self, N, iterations, batch_size):
+    self.simulator.renew_dataset()
+    self.simulator.simulate(N = N)
+
     dataloader = self.simulator.get_dataloader(batch_size)
     loss_total = 0
     loss_actor_total = 0

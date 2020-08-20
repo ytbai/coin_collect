@@ -29,7 +29,9 @@ class QLearn(RL):
     Q_pred = Game.project(self.Q(S), A)
     return Q_pred
 
-  def train_once(self, iterations, batch_size):
+  def train_once(self, N, iterations, batch_size):
+    self.simulator.renew_dataset()
+    self.simulator.simulate(N = N)
     dataloader = self.simulator.get_dataloader(batch_size)
     loss_total = 0
 

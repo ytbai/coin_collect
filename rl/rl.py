@@ -29,9 +29,7 @@ class RL():
 
   def train(self, epochs, N = 64, iterations = 4, batch_size = 64, verbose = False):
     for e in range(epochs):
-      self.simulator.renew_dataset()
-      self.simulator.simulate(N = N)
-      self.train_once(iterations, batch_size)
+      self.train_once(N, iterations, batch_size)
       self.model_factory.print_last_loss(e, verbose)
 
   
