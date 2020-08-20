@@ -192,6 +192,11 @@ class Game():
     projection = torch.sum(X * A_one_hot, dim = 1)
     return projection
 
+  @staticmethod
+  def contract(S, P):
+    contraction = torch.sum(S * P, dim = 1)
+    return contraction
+
   def __init__(self, Nx, Ny, lambda_coins = 3):
     self.lambda_coins = lambda_coins
 
