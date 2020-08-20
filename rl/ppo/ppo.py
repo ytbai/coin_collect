@@ -8,7 +8,7 @@ class PPO(RL):
     super().__init__(Nx, Ny, name, actor_critic_class, models_dir = "rl/ppo/models", N_valid = N_valid, lr_init = lr_init)
 
     self.actor_critic = self.model
-    self.simulator = ACSimulator(self.Nx, self.Ny, self.actor_critic)
+    self.simulator = ActorSimulator(self.Nx, self.Ny, self.actor_critic)
     self.lambda_critic = 0.1
 
   def get_delta_and_critic_target(self, S, R, Sp, term):

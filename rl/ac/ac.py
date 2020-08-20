@@ -8,7 +8,7 @@ class AC(RL):
     super().__init__(Nx, Ny, name, actor_critic_class, models_dir = "rl/ac/models", N_valid = N_valid, lr_init = lr_init)
 
     self.actor_critic = self.model
-    self.simulator = ACSimulator(self.Nx, self.Ny, self.actor_critic)
+    self.simulator = ActorSimulator(self.Nx, self.Ny, self.actor_critic)
     self.lambda_critic = 0.1
     self.log_eps = 1e-20
 
