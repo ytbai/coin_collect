@@ -2,35 +2,41 @@ import torch
 import numpy as np
 
 from rl import *
-
 class PPO(RL):
-  def __init__(self, Nx, Ny, name, actor_critic_class, N_valid, lr_init = 1e-4):
+  def __init__(self, Nx, Ny, name, actor_critic_class, eps, N_valid, lr_init = 1e-4):
     super().__init__(Nx, Ny, name, actor_critic_class, models_dir = "rl/ppo/models", N_valid = N_valid, lr_init = lr_init)
 
     self.actor_critic = self.model
-    self.simulator = ActorSimulator(self.Nx, self.Ny, self.actor_critic)
+    self.simulator = ACSimulator(self.Nx, self.Ny, self.actor_critic)
     self.lambda_critic = 0.1
+    self.eps = eps
 
-  def get_delta_and_critic_target(self, S, R, Sp, term):
-    self.actor_critic.eval()
+  def get_delta_and_critic_target_old(self, S, R, Sp, term, actor_critic_old):
+    actor_critic_old.eval()
     R_proc = self.R_process(R)
-    critic_target = (R_proc + (1-term)*self.actor_critic.critic(Sp)).detach()
-    delta = critic_target - self.actor_critic.critic(S).detach()
-    return delta, critic_target
+    critic_target_old = (R_proc + (1-term)*actor_critic_old.critic(Sp)).detach()
+    delta_old = critic_target_old - actor_critic_old.critic(S).detach()
+    return delta_old, critic_target_old
 
-  def get_loss_actor(self, actor_output, A, delta):
-    loss_actor = Game.project(actor_output, A)
-    loss_actor = torch.log(loss_actor)
-    loss_actor *= delta
+  def get_loss_actor(self, actor_output, A, delta_old, actor_output_old):
+    r = Game.project(actor_output, A) / Game.project(actor_output_old, A)
+    r_clipped = torch.clamp(r, 1-self.eps, 1+self.eps)
+    min_arg_1 = r * delta_old
+    min_arg_2 = r_clipped * delta_old
+    loss_actor = torch.min(min_arg_1, min_arg_2)
     loss_actor = -torch.mean(loss_actor) # minus sign
     return loss_actor
 
-  def get_loss_critic(self, critic_output, critic_target):
-    loss_critic = nn.MSELoss()(critic_output, critic_target)
+
+  def get_loss_critic(self, critic_output, critic_target_old):
+    loss_critic = nn.MSELoss()(critic_output, critic_target_old)
     return loss_critic
 
 
   def train_once(self, iterations, batch_size):
+    actor_critic_old = copy.deepcopy(self.actor_critic)
+    actor_critic_old.eval() # never put the old model on .train() mode
+
     dataloader = self.simulator.get_dataloader(batch_size)
     loss_total = 0
     loss_actor_total = 0
@@ -40,13 +46,14 @@ class PPO(RL):
       for S, A, R, Sp, term, t in dataloader:
         self.optimizer.zero_grad()
 
-        delta, critic_target = self.get_delta_and_critic_target(S, R, Sp, term)
+        delta_old, critic_target_old = self.get_delta_and_critic_target_old(S, R, Sp, term, actor_critic_old)
 
         self.actor_critic.train()
         actor_output, critic_output = self.actor_critic(S)
+        actor_output_old, critic_output_old = actor_critic_old(S)
 
-        loss_actor = self.get_loss_actor(actor_output, A, delta)
-        loss_critic = self.get_loss_critic(critic_output, critic_target)
+        loss_actor = self.get_loss_actor(actor_output, A, delta_old, actor_output_old)
+        loss_critic = self.get_loss_critic(critic_output, critic_target_old)
         loss = loss_actor + self.lambda_critic * loss_critic
 
         loss.backward()
@@ -62,4 +69,7 @@ class PPO(RL):
     self.model_factory.append_loss("loss_actor_train", loss_actor_mean)
     self.model_factory.append_loss("loss_critic_train", loss_critic_mean)
     self.model_factory.append_loss("loss_train", loss_mean)
+
+    del actor_critic_old
+    gc.collect()
     return loss_mean
