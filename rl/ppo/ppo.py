@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from rl.rl import *
 from data_factory import *
-print("new5")
+
 class PPO(RL):
   def __init__(self, Nx, Ny, name, actor_critic_class, eps, N_valid, lr_init = 1e-4):
     super().__init__(Nx, Ny, name, actor_critic_class, models_dir = "rl/ppo/models", N_valid = N_valid, lr_init = lr_init)
