@@ -10,8 +10,9 @@ class Simulator():
     self.Ny = Ny
     self.dataset = None
     self.renew_dataset()
-    self.T = 64  
-  
+    self.T = 64
+    self.lambda_coins = Nx * Ny // 5
+ 
   def renew_dataset(self):
     if self.dataset is not None:
       del self.dataset
@@ -26,7 +27,7 @@ class Simulator():
     return self
 
   def simulate_once(self):
-    game = Game(self.Nx, self.Ny)
+    game = Game(self.Nx, self.Ny, self.lambda_coins)
     while game.t < self.T and not game.terminal():
       state = game.get_state()
       action = self.eval_action(state)
