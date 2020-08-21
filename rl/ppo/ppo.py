@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from rl.rl import *
 from data_factory import *
-
+print("new5")
 class PPO(RL):
   def __init__(self, Nx, Ny, name, actor_critic_class, eps, N_valid, lr_init = 1e-4):
     super().__init__(Nx, Ny, name, actor_critic_class, models_dir = "rl/ppo/models", N_valid = N_valid, lr_init = lr_init)
@@ -12,11 +12,10 @@ class PPO(RL):
     self.lambda_critic = 0.1
     self.eps = eps
 
-  def get_delta_and_critic_target_old(self, S, R, Sp, term, actor_critic_old):
-    actor_critic_old.eval()
+  def get_delta_and_critic_target_old(self, S, R, Sp, term, critic_output_p_old, critic_output_old):
     R_proc = self.R_process(R)
-    critic_target_old = (R_proc + (1-term)*actor_critic_old.critic(Sp)).detach()
-    delta_old = critic_target_old - actor_critic_old.critic(S).detach()
+    critic_target_old = R_proc + (1-term) * critic_output_p_old
+    delta_old = critic_target_old - critic_output_old
     return delta_old, critic_target_old
 
   def get_loss_actor(self, actor_output, A, delta_old, actor_output_old):
@@ -50,11 +49,16 @@ class PPO(RL):
       for S, A, R, Sp, term, t in dataloader:
         self.optimizer.zero_grad()
 
-        delta_old, critic_target_old = self.get_delta_and_critic_target_old(S, R, Sp, term, actor_critic_old)
-
         self.actor_critic.train()
         actor_output, critic_output = self.actor_critic(S)
+
+        actor_critic_old.eval()
         actor_output_old, critic_output_old = actor_critic_old(S)
+        actor_output_old = actor_output_old.detach()
+        critic_output_old = critic_output_old.detach()
+        critic_output_p_old = actor_critic_old.critic(Sp).detach()
+
+        delta_old, critic_target_old = self.get_delta_and_critic_target_old(S, R, Sp, term, critic_output_p_old, critic_output_old)
 
         loss_actor = self.get_loss_actor(actor_output, A, delta_old, actor_output_old)
         loss_critic = self.get_loss_critic(critic_output, critic_target_old)
