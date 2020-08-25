@@ -6,7 +6,7 @@ from model_factory import *
 from test import *
 
 class RL():
-  def __init__(self, Nx, Ny, name, model_class, models_dir, N_valid, lr_init = 1e-4):
+  def __init__(self, Nx, Ny, name, model_class, models_dir, N_valid = 1024, lr_init = 1e-4):
     self.Nx = Nx
     self.Ny = Ny
     self.name = name

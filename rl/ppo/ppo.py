@@ -4,7 +4,7 @@ from rl.rl import *
 from data_factory import *
 
 class PPO(RL):
-  def __init__(self, Nx, Ny, name, actor_critic_class, eps, N_valid, lr_init = 1e-4):
+  def __init__(self, Nx, Ny, name, actor_critic_class, eps = 0.2, N_valid = 1024, lr_init = 1e-4):
     super().__init__(Nx, Ny, name, actor_critic_class, models_dir = "rl/ppo/models", N_valid = N_valid, lr_init = lr_init)
 
     self.actor_critic = self.model

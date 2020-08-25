@@ -7,7 +7,7 @@ from rl import *
 from test import *
 
 class QLearn(RL):
-  def __init__(self, Nx, Ny, name, Q_class, eps, N_valid = 2048, lr_init = 1e-4, kappa = None):
+  def __init__(self, Nx, Ny, name, Q_class, eps = 0.1, N_valid = 1024, lr_init = 1e-4, kappa = None):
     super().__init__(Nx, Ny, name, Q_class, models_dir = "rl/qlearn/models", N_valid = N_valid, lr_init = lr_init)
 
     self.Q = self.model
