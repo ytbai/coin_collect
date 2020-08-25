@@ -85,6 +85,12 @@ class Agent():
 
 
 class Action():
+  action_list = ["northwest", "north", "northeast", "west", "collect", "east", "southwest", "south", "southeast"]
+
+  @staticmethod
+  def get_action(action_str):
+    return Action.action_list.index(action_str)
+
   @staticmethod
   def unflatten(action):
     vx = action // 3
@@ -111,8 +117,7 @@ class Action():
 
   @staticmethod
   def action_to_str(action):
-    action_list = ["northwest", "north", "northeast", "west", "collect", "east", "southwest", "south", "southeast"]
-    return action_list[action]
+    return Action.action_list[action]
 
 
 class Board():

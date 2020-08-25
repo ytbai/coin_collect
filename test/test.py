@@ -40,10 +40,13 @@ class TestSimulator():
     return mean_return
 
 
-class RandomPlayer():
-  def __init__(self):
-    return
+class BaselinePlayer():
+  def __init__(self, mode):
+    self.mode = mode
 
   def __call__(self, x):
-    return np.random.randint(Game.num_actions)
+    if self.mode == "random":
+      return np.random.randint(Game.num_actions)
+    elif self.mode == "collect:
+      return Action.get_action("collect")
 
