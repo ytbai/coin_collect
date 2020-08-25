@@ -48,11 +48,15 @@ class Visual():
     combined_state = self.combine_colored_states(agent_state, coin_state)
     return combined_state
 
-  def plot_history(self):
-    fig, ax = plt.subplots(1,self.game.t+1, figsize = (3*self.game.t, 3))
+  def plot_history(self, width = 2):
+    fig, ax = plt.subplots(1,self.game.t+1, figsize = (width*(self.game.t+1), width))
     for t in range(self.game.t + 1):
       combined_state = self.get_combined_state(t)
-      ax[t].imshow(combined_state)
-      ax[t].axis("off")
-      ax[t].set_title("%s" % (self.get_action_str(t)))
+      if self.game.t == 0:
+        ax_t = ax
+      else:
+        ax_t = ax[t]
+      ax_t.imshow(combined_state)
+      ax_t.axis("off")
+      ax_t.set_title("%s" % (self.get_action_str(t)))
     return fig, ax
