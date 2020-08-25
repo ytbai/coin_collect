@@ -22,6 +22,7 @@ class TestSimulator():
     return self
 
   def test_once(self, model_wrapper, game):
+    model_wrapper.model.eval()
     game = copy.deepcopy(game)
     while game.t < self.T and not game.terminal():
       state = game.get_state()
