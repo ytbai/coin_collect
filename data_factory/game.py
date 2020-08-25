@@ -105,6 +105,16 @@ class Action():
   def collect(action):
     return Action.unflatten(action) == (0,0)
 
+  @staticmethod
+  def get_terminal_str():
+    return "terminal"
+
+  @staticmethod
+  def action_to_str(action):
+    action_list = ["northwest", "north", "northeast", "west", "collect", "east", "southwest", "south", "southeast"]
+    return action_list[action]
+
+
 class Board():
   def __init__(self, Nx, Ny):
     self.Nx = Nx
