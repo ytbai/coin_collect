@@ -45,3 +45,11 @@ class RL():
 
   def __call__(self, state):
     return self.simulator(state)
+
+class DummyWrapper():
+  def __init__(self, mode):
+    self.mode = mode
+    self.model = DummyModel(self.mode)
+
+  def __call__(self, state):
+    return self.model(state)
