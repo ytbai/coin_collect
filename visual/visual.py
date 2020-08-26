@@ -48,15 +48,26 @@ class Visual():
     combined_state = self.combine_colored_states(agent_state, coin_state)
     return combined_state
 
-  def plot_history(self, width = 2):
-    fig, ax = plt.subplots(1,self.game.t+1, figsize = (width*(self.game.t+1), width))
-    for t in range(self.game.t + 1):
-      combined_state = self.get_combined_state(t)
+  def plot_history(self, width = 2, n_cols = 8):
+    n_boards = self.game.t + 1
+    n_rows = (n_boards-1)//n_cols + 1
+
+    fig, ax = plt.subplots(n_rows, n_cols, figsize = (width*n_cols, width*n_rows))
+    for t in range(n_rows * n_cols):
       if self.game.t == 0:
         ax_t = ax
-      else:
+      elif n_rows == 1:
         ax_t = ax[t]
-      ax_t.imshow(combined_state)
+      else:
+        t_row = t // n_cols 
+        t_col = t % n_cols
+        ax_t = ax[t_row][t_col]
       ax_t.axis("off")
-      ax_t.set_title("%s" % (self.get_action_str(t)))
+
+      if t < n_boards:
+        combined_state = self.get_combined_state(t)
+        ax_t.imshow(combined_state)
+        ax_t.set_title("%s" % (self.get_action_str(t)))
+      ax_t.axis("off")
+      
     return fig, ax
