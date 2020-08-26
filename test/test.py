@@ -38,15 +38,3 @@ class TestSimulator():
     
     mean_return = total_return / self.N_test
     return mean_return
-
-
-class BaselinePlayer():
-  def __init__(self, mode):
-    self.mode = mode
-
-  def __call__(self, x):
-    if self.mode == "random":
-      return np.random.randint(Game.num_actions)
-    elif self.mode == "collect":
-      return Action.get_action("collect")
-
