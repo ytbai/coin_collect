@@ -47,6 +47,6 @@ class BaselinePlayer():
   def __call__(self, x):
     if self.mode == "random":
       return np.random.randint(Game.num_actions)
-    elif self.mode == "collect:
+    elif self.mode == "collect":
       return Action.get_action("collect")
 
