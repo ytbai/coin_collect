@@ -4,7 +4,7 @@ This repository provides all the code I used for a project called "Playing Games
 
 ## Guide on Using Notebooks
 
-```plots.ipynb``` --- notebook for making all the plots and figures in the blog post
+```plots.ipynb``` --- notebook for making all the plots and figures used in the blog post, which are saved in ```blog/plots```
 
 ```test.ipynb``` --- notebook for testing the random and static players discussed in the blog post
 
